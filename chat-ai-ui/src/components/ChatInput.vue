@@ -28,7 +28,7 @@ const handleSubmit = () => {
         <textarea
           v-model="newMessage"
           placeholder="Type your message..."
-          class="flex-1 px-4 py-3 bg-gray-800 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 h-16 resize-none"
+          class="flex-1 px-4 py-3 bg-gray-800 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 h-16 resize-none custom-scrollbar"
           rows="4"
           :disabled="isDisabled"
           @keydown.enter.prevent="handleSubmit"
@@ -47,3 +47,4 @@ const handleSubmit = () => {
     </div>
   </div>
 </template>
+

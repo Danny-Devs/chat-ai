@@ -55,7 +55,7 @@ watch(
     <!-- Chat messages -->
     <div
       id="chat-container"
-      class="flex-1 overflow-y-auto p-6 space-y-4 mx-auto w-1/2"
+      class="flex-1 overflow-y-auto p-6 space-y-4 mx-auto w-1/2 custom-scrollbar"
     >
       <div
         v-for="(msg, index) in chatStore.messages"
@@ -91,6 +91,11 @@ watch(
     </div>
 
     <!-- Message input area -->
-    <ChatInput @submit="handleMessageSubmit" :isDisabled="chatStore.isLoading" />
+    <ChatInput
+      @submit="handleMessageSubmit"
+      :isDisabled="chatStore.isLoading"
+    />
   </div>
 </template>
+
+

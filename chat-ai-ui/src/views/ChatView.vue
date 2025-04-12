@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import Header from '../components/Header.vue';
+import ChatInput from '../components/ChatInput.vue';
 import { useChatStore } from '../stores/chat';
 import { useUserStore } from '../stores/user';
 import { useRouter } from 'vue-router';
@@ -31,9 +32,8 @@ const scrollToBottom = () => {
   });
 };
 
-const handleSubmit = async () => {
-  await chatStore.sendMessage(newMessage.value);
-  newMessage.value = '';
+const handleMessageSubmit = async (message: string) => {
+  await chatStore.sendMessage(message);
   scrollToBottom();
 };
 
@@ -93,23 +93,6 @@ watch(
     </div>
 
     <!-- Message input area -->
-    <div class="px-4 py-6">
-      <div class="mx-auto w-1/2">
-        <form @submit.prevent="handleSubmit" class="flex gap-2">
-          <textarea
-            v-model="newMessage"
-            placeholder="Type your message..."
-            class="flex-1 px-4 py-3 bg-gray-800 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 h-16 resize-none"
-            rows="4"
-          ></textarea>
-          <button
-            type="submit"
-            class="px-5 bg-blue-600 rounded-lg hover:bg-blue-500 transition-colors"
-          >
-            Send
-          </button>
-        </form>
-      </div>
-    </div>
+    <ChatInput :onSubmit="handleMessageSubmit" :isDisabled="chatStore.isLoading" />
   </div>
 </template>

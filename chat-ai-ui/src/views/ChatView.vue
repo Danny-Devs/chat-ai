@@ -93,15 +93,15 @@ watch(
     </div>
 
     <!-- Message input area -->
-    <div class="p-4 border-t border-gray-800">
+    <div class="px-4 py-6">
       <div class="mx-auto w-1/2">
         <form @submit.prevent="handleSubmit" class="flex gap-2">
-          <input
+          <textarea
             v-model="newMessage"
-            type="text"
             placeholder="Type your message..."
-            class="flex-1 px-4 py-3 bg-gray-800 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
+            class="flex-1 px-4 py-3 bg-gray-800 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 h-16 resize-none"
+            rows="4"
+          ></textarea>
           <button
             type="submit"
             class="px-5 bg-blue-600 rounded-lg hover:bg-blue-500 transition-colors"

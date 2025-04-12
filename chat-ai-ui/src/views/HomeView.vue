@@ -2,10 +2,8 @@
 import robotImage from '@/assets/robot.png';
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
-import { useStore } from '../stores/store';
 
 const router = useRouter();
-const store = useStore();
 
 const name = ref('');
 const email = ref('');

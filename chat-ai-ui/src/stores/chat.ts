@@ -13,15 +13,50 @@ interface FormattedMessage {
   content: string;
 }
 
-const userStore = useUserStore(); // need to retrieve user id from user store
+export const useChatStore = defineStore('chat', () => {
+  const messages = ref<FormattedMessage[]>([]);
+  const isLoading = ref(false);
 
-export const useChatStore = defineStore(
-  'chat',
-  () => {
-    const messages = ref<FormattedMessage[]>([]);
+  const userStore = useUserStore(); // need to retrieve user id from user store
 
-    return {
-      messages
-    };
-  }
-);
+  // Load previous chat messages
+  const loadChatHistory = async () => {
+    isLoading.value = true;
+
+    if (!userStore.userId) {
+      console.error('User ID is not set');
+      return;
+    }
+
+    try {
+      const { data } = await axios.post(
+        `${import.meta.env.VITE_API_URL}/get-messages`,
+        {
+          userId: userStore.userId
+        }
+      );
+      messages.value = data.messages
+        .flatMap((msg: ChatMessage): FormattedMessage[] => [
+          {
+            role: 'user',
+            content: msg.message
+          },
+          {
+            role: 'assistant',
+            content: msg.reply
+          }
+        ])
+        .filter((msg: FormattedMessage) => msg.content);
+    } catch (error) {
+      console.error('Error loading chat history:', error);
+    } finally {
+      isLoading.value = false;
+    }
+  };
+
+  return {
+    messages,
+    isLoading,
+    loadChatHistory
+  };
+});

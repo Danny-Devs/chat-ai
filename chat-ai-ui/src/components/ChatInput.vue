@@ -1,18 +1,22 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 
-// Define props
+// Define props for state
 const props = defineProps<{
-  onSubmit: (message: string) => Promise<void>;
   isDisabled?: boolean;
+}>();
+
+// Define emits for events
+const emit = defineEmits<{
+  submit: [message: string];
 }>();
 
 const newMessage = ref('');
 
-const handleSubmit = async () => {
+const handleSubmit = () => {
   if (newMessage.value.trim() === '' || props.isDisabled) return;
-  
-  await props.onSubmit(newMessage.value);
+
+  emit('submit', newMessage.value);
   newMessage.value = '';
 };
 </script>
@@ -27,12 +31,15 @@ const handleSubmit = async () => {
           class="flex-1 px-4 py-3 bg-gray-800 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 h-16 resize-none"
           rows="4"
           :disabled="isDisabled"
+          @keydown.enter.prevent="handleSubmit"
         ></textarea>
         <button
           type="submit"
           class="px-5 bg-blue-600 rounded-lg hover:bg-blue-500 transition-colors"
           :disabled="isDisabled || !newMessage.trim()"
-          :class="{ 'opacity-50 cursor-not-allowed': isDisabled || !newMessage.trim() }"
+          :class="{
+            'opacity-50 cursor-not-allowed': isDisabled || !newMessage.trim()
+          }"
         >
           Send
         </button>

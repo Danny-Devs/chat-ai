@@ -15,8 +15,6 @@ const chatStore = useChatStore();
 const userStore = useUserStore();
 const router = useRouter();
 
-const newMessage = ref('');
-
 // ensure user is logged in
 if (!userStore.userId) {
   router.push('/');
@@ -93,6 +91,6 @@ watch(
     </div>
 
     <!-- Message input area -->
-    <ChatInput :onSubmit="handleMessageSubmit" :isDisabled="chatStore.isLoading" />
+    <ChatInput @submit="handleMessageSubmit" :isDisabled="chatStore.isLoading" />
   </div>
 </template>

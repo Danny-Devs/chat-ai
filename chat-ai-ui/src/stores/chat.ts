@@ -54,9 +54,40 @@ export const useChatStore = defineStore('chat', () => {
     }
   };
 
+  // Send new message
+  const sendMessage = async (message: string) => {
+    if (!message.trim() || !userStore.userId) {
+      console.error('Invalid message or user ID is not set');
+      return;
+    }
+    isLoading.value = true;
+
+    try {
+      const { data } = await axios.post(
+        `${import.meta.env.VITE_API_URL}/chat`,
+        {
+          userId: userStore.userId,
+          message
+        }
+      );
+      messages.value.push({
+        role: 'user',
+        content: message
+      });
+      messages.value.push({
+        role: 'assistant',
+        content: data.reply
+      });
+    } catch (error) {
+      console.error('Error sending message:', error);
+    } finally {
+      isLoading.value = false;
+    }
+  };
   return {
     messages,
     isLoading,
-    loadChatHistory
+    loadChatHistory,
+    sendMessage
   };
 });

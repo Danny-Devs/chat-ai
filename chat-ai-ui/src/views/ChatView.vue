@@ -3,7 +3,7 @@ import Header from '../components/Header.vue';
 import { useChatStore } from '../stores/chat';
 import { useUserStore } from '../stores/user';
 import { useRouter } from 'vue-router';
-import { ref, onMounted, nextTick } from 'vue';
+import { onMounted, nextTick, ref, watch } from 'vue';
 
 // TODO: Optimize chat history retrieval
 // 1. Check if user is existing before fetching chat history
@@ -14,18 +14,102 @@ const chatStore = useChatStore();
 const userStore = useUserStore();
 const router = useRouter();
 
+const newMessage = ref('');
+
 // ensure user is logged in
 if (!userStore.userId) {
-  router.push('/login');
+  router.push('/');
 }
 
+// Auto-scroll to bottom of chat history
+const scrollToBottom = () => {
+  nextTick(() => {
+    const chatContainer = document.getElementById('chat-container');
+    if (chatContainer) {
+      chatContainer.scrollTop = chatContainer.scrollHeight;
+    }
+  });
+};
+
+const handleSubmit = async () => {
+  await chatStore.sendMessage(newMessage.value);
+  newMessage.value = '';
+  scrollToBottom();
+};
+
 onMounted(() => {
-  chatStore.loadChatHistory();
+  chatStore.loadChatHistory().then(() => {
+    scrollToBottom();
+  });
 });
+
+watch(
+  () => chatStore.isLoading,
+  () => {
+    scrollToBottom();
+  }
+);
 </script>
 
 <template>
   <div class="flex flex-col h-screen bg-gray-900 text-white">
     <Header />
+    <!-- Chat messages -->
+    <div
+      id="chat-container"
+      class="flex-1 overflow-y-auto p-6 space-y-4 mx-auto w-1/2"
+    >
+      <div
+        v-for="(msg, index) in chatStore.messages"
+        :key="index"
+        class="flex items-start"
+        :class="msg.role === 'user' ? 'justify-end' : 'justify-start'"
+      >
+        <div
+          class="max-w-xl px-4 p-2 rounded-lg"
+          :class="
+            msg.role === 'user'
+              ? 'bg-blue-600 text-white'
+              : 'bg-gray-700 text-white'
+          "
+        >
+          {{ msg.content }}
+        </div>
+      </div>
+      <div
+        v-if="chatStore.isLoading"
+        class="flex justify-center items-center py-4"
+      >
+        <div class="w-2 h-2 m-1 bg-white rounded-full animate-bounce"></div>
+        <div
+          class="w-2 h-2 m-1 bg-white rounded-full animate-bounce"
+          style="animation-delay: 0.2s"
+        ></div>
+        <div
+          class="w-2 h-2 m-1 bg-white rounded-full animate-bounce"
+          style="animation-delay: 0.4s"
+        ></div>
+      </div>
+    </div>
+
+    <!-- Message input area -->
+    <div class="p-4 border-t border-gray-800">
+      <div class="mx-auto w-1/2">
+        <form @submit.prevent="handleSubmit" class="flex gap-2">
+          <input
+            v-model="newMessage"
+            type="text"
+            placeholder="Type your message..."
+            class="flex-1 px-4 py-3 bg-gray-800 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+          <button
+            type="submit"
+            class="px-5 bg-blue-600 rounded-lg hover:bg-blue-500 transition-colors"
+          >
+            Send
+          </button>
+        </form>
+      </div>
+    </div>
   </div>
 </template>

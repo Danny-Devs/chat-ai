@@ -157,7 +157,7 @@ app.post('/chat', async (req: Request, res: Response): Promise<any> => {
 });
 
 // Get chat history for a user
-app.get('/get-messages', async (req: Request, res: Response): Promise<any> => {
+app.post('/get-messages', async (req: Request, res: Response): Promise<any> => {
   const { userId } = req.body;
 
   if (!userId) {

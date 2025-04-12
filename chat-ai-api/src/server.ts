@@ -42,40 +42,44 @@ app.post(
     }
 
     try {
-      const userId = uuidv4();
-
-      // Check if user already exists
-      const userResponse = await chatClient.queryUsers({
-        id: { $eq: userId }
-      });
-      if (!userResponse.users.length) {
-        // Add new user to stream chat
-        await chatClient.upsertUser({
-          id: userId,
-          name,
-          email,
-          role: 'user'
-        });
-      }
-
-      // Check for existing user in database
-      const existingUser = await db
+      // First check if user with this email already exists in database
+      const existingUserByEmail = await db
         .select()
         .from(users)
-        .where(eq(users.userId, userId));
-      if (!existingUser.length) {
-        console.log(
-          `User ${userId} does not exist in database. Adding user...`
-        );
-        await db.insert(users).values({
-          userId,
-          name,
-          email
+        .where(eq(users.email, email));
+
+      // If user exists, return their data
+      if (existingUserByEmail.length > 0) {
+        const user = existingUserByEmail[0];
+        // TODO: Add isExistingUser flag to reponse for optimizing chat history retrieval
+        return res.status(200).json({
+          userId: user.userId,
+          name: user.name,
+          email: user.email
         });
       }
+
+      // If no existing user, create a new one
+      const userId = uuidv4();
+
+      // Add new user to stream chat
+      await chatClient.upsertUser({
+        id: userId,
+        name,
+        email,
+        role: 'user'
+      });
+
+      // Add to database
+      await db.insert(users).values({
+        userId,
+        name,
+        email
+      });
 
       res.status(200).json({ userId, name, email });
     } catch (error) {
+      console.error('Registration error:', error);
       res.status(500).json({ error: 'Failed to register user' });
     }
   }

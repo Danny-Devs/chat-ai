@@ -1,9 +1,12 @@
 <script setup lang="ts">
-import robotImage from '@/assets/robot.png';
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
+import { useUserStore } from '../stores/user';
+import axios from 'axios';
+import robotImage from '@/assets/robot.png';
 
 const router = useRouter();
+const userStore = useUserStore();
 
 const name = ref('');
 const email = ref('');
@@ -17,34 +20,37 @@ const createUser = async () => {
   }
 
   loading.value = true;
-  let response;
+  error.value = '';
 
   try {
-    response = await fetch('http://localhost:3000/users', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({ name: name.value, email: email.value })
+    const { data } = await axios.post(
+      `${import.meta.env.VITE_API_URL}/register-user`,
+      {
+        name: name.value,
+        email: email.value
+      }
+    );
+
+    userStore.setUser({
+      userId: data.userId,
+      name: data.name,
+      email: data.email
     });
+
+    router.push('/chat');
   } catch (err) {
-    console.error(err);
     error.value = 'Failed to connect to server';
   } finally {
     loading.value = false;
-  }
-
-  if (response && response.ok) {
-    router.push('/chat');
-  } else if (response) {
-    error.value = 'Failed to create user';
   }
 };
 </script>
 
 <template>
   <div class="h-screen flex items-center justify-center bg-gray-900 text-white">
-    <div class="p-12 pb-16 bg-gray-800 rounded-lg shadow-lg w-full max-w-lg relative">
+    <div
+      class="p-12 pb-16 bg-gray-800 rounded-lg shadow-lg w-full max-w-lg relative"
+    >
       <img :src="robotImage" alt="Robot" class="mx-auto w-24 h-24 mb-2" />
       <h1 class="text-2xl font-semibold mb-10 text-center">
         Welcome to Chat AI

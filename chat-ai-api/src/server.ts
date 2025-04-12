@@ -6,6 +6,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { OpenAI } from 'openai';
 import { db } from './config/database.js';
 import { chats, users } from './db/schema.js';
+import { eq } from 'drizzle-orm';
 
 // Load environment variables
 dotenv.config();
@@ -56,6 +57,23 @@ app.post(
           role: 'user'
         });
       }
+
+      // Check for existing user in database
+      const existingUser = await db
+        .select()
+        .from(users)
+        .where(eq(users.userId, userId));
+      if (!existingUser.length) {
+        console.log(
+          `User ${userId} does not exist in database. Adding user...`
+        );
+        await db.insert(users).values({
+          userId,
+          name,
+          email
+        });
+      }
+
       res.status(200).json({ userId, name, email });
     } catch (error) {
       res.status(500).json({ error: 'Failed to register user' });
@@ -82,6 +100,17 @@ app.post('/chat', async (req: Request, res: Response): Promise<any> => {
         .json({ error: 'User does not exist. Please register.' });
     }
 
+    // check user in database
+    const existingUser = await db
+      .select()
+      .from(users)
+      .where(eq(users.userId, userId));
+    if (!existingUser.length) {
+      return res
+        .status(404)
+        .json({ error: 'User not found in database. Please register.' });
+    }
+
     // send message to OpenAI
     const response = await openai.chat.completions.create({
       model: 'gpt-4o',
@@ -100,6 +129,13 @@ app.post('/chat', async (req: Request, res: Response): Promise<any> => {
     const aiMessage: string =
       response.choices[0].message?.content ?? 'No response from chatGPT';
 
+    // save message to database
+    await db.insert(chats).values({
+      userId,
+      message,
+      reply: aiMessage
+    });
+
     // Create or get channel and send message to Stream Chat
     const channel = chatClient.channel('messaging', `chat-${userId}`, {
       name: 'AI Chat',
@@ -117,6 +153,30 @@ app.post('/chat', async (req: Request, res: Response): Promise<any> => {
     return res
       .status(500)
       .json({ error: 'Failed to send message. Internal server error.' });
+  }
+});
+
+// Get chat history for a user
+app.get('/get-messages', async (req: Request, res: Response): Promise<any> => {
+  const { userId } = req.body;
+
+  if (!userId) {
+    return res.status(400).json({ error: 'User ID is required.' });
+  }
+
+  try {
+    // get messages from database
+    const chatHistory = await db
+      .select()
+      .from(chats)
+      .where(eq(chats.userId, userId));
+
+    res.status(200).json({ messagse: chatHistory });
+  } catch (error) {
+    console.log('Error fetching chat history:', error);
+    return res
+      .status(500)
+      .json({ error: 'Failed to fetch chat history. Internal server error.' });
   }
 });
 

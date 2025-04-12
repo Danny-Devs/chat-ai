@@ -23,7 +23,7 @@ export const chats = pgTable('chats', {
 export const users = pgTable('users', {
   // 'id' column: The unique identifier for each user (a UUID string)
   // We use text type because UUIDs are stored as strings
-  id: text('user_id').primaryKey(),
+  userId: text('user_id').primaryKey(),
 
   // 'name' column: The user's name
   name: text('name').notNull(),

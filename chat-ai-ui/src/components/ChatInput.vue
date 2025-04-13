@@ -11,13 +11,13 @@ const emit = defineEmits<{
   submit: [message: string];
 }>();
 
-const newMessage = ref('');
+const message = ref('');
 
 const handleSubmit = () => {
-  if (newMessage.value.trim() === '' || props.isDisabled) return;
+  if (message.value.trim() === '' || props.isDisabled) return;
 
-  emit('submit', newMessage.value);
-  newMessage.value = '';
+  emit('submit', message.value);
+  message.value = '';
 };
 </script>
 
@@ -26,7 +26,7 @@ const handleSubmit = () => {
     <div class="mx-auto w-1/2">
       <form @submit.prevent="handleSubmit" class="flex gap-2">
         <textarea
-          v-model="newMessage"
+          v-model="message"
           placeholder="Type your message..."
           class="flex-1 px-4 py-3 bg-gray-800 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 h-16 resize-none custom-scrollbar"
           rows="4"
@@ -36,9 +36,9 @@ const handleSubmit = () => {
         <button
           type="submit"
           class="px-5 bg-blue-600 rounded-lg hover:bg-blue-500 transition-colors"
-          :disabled="isDisabled || !newMessage.trim()"
+          :disabled="isDisabled || !message.trim()"
           :class="{
-            'opacity-50 cursor-not-allowed': isDisabled || !newMessage.trim()
+            'opacity-50 cursor-not-allowed': isDisabled || !message.trim()
           }"
         >
           Send
@@ -47,4 +47,3 @@ const handleSubmit = () => {
     </div>
   </div>
 </template>
-

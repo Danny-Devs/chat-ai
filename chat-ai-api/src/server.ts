@@ -138,8 +138,6 @@ app.post('/chat', async (req: Request, res: Response): Promise<any> => {
       content: message
     });
 
-    console.log('Conversation:', conversation);
-
     // send message to OpenAI
     const response = await openai.chat.completions.create({
       model: 'gpt-4o',

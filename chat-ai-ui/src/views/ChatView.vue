@@ -22,6 +22,29 @@ if (!userStore.userId) {
   router.push('/');
 }
 
+// Format AI messages for better display
+const formatMessage = (text: string) => {
+  if (!text) return '';
+
+  // First handle code blocks (triple backticks)
+  let formatted = text.replace(
+    /```(\w+)?\n([\s\S]*?)```/g,
+    '<pre class="bg-gray-950 p-3 rounded my-2 overflow-x-auto"><code class="text-gray-300">$2</code></pre>'
+  );
+
+  // Then handle the rest of the formatting
+  return formatted
+    .replace(/\n/g, '<br>') // Preserve line breaks
+    .replace(/\*\*(.*?)\*\*/g, '<b>$1</b>') // Bold text
+    .replace(/\*(.*?)\*/g, '<i>$1</i>') // Italic text
+    .replace(/`(.*?)`/g, '<code class="bg-gray-950 px-1 rounded">$1</code>') // Inline code
+    .replace(/(?:^|\n)- (.*?)(?:\n|$)/g, '<li>$1</li>') // Bullet points
+    .replace(/(?:^|\n)(\d+)\. (.*?)(?:\n|$)/g, '<li>$1. $2</li>') // Numbered lists
+    .replace(/<\/li>\n<li>/g, '</li><li>') // Ensure list continuity
+    .replace(/<li>/, '<ul class="list-disc pl-5 my-2"><li>') // Wrap in `<ul>` with proper styling
+    .replace(/<\/li>$/, '</li></ul>'); // Close the `<ul>`
+};
+
 // Auto-scroll to bottom of chat history
 const scrollToBottom = () => {
   nextTick(() => {
@@ -45,7 +68,7 @@ onMounted(() => {
 
 watch(
   () => chatStore.isLoading,
-  (isLoading) => {
+  isLoading => {
     scrollToBottom();
 
     // When AI has finished responding (loading state ends)
@@ -63,7 +86,7 @@ watch(
     <!-- Chat messages -->
     <div
       id="chat-container"
-      class="flex-1 overflow-y-auto p-6 space-y-4 mx-auto w-1/2 custom-scrollbar"
+      class="flex-1 overflow-y-auto p-6 space-y-4 mx-auto w-2/3 custom-scrollbar"
     >
       <div
         v-for="(msg, index) in chatStore.messages"
@@ -72,14 +95,15 @@ watch(
         :class="msg.role === 'user' ? 'justify-end' : 'justify-start'"
       >
         <div
-          class="max-w-xl px-4 p-2 rounded-lg"
+          class="max-w-3xl px-4 p-2 rounded-lg"
           :class="
             msg.role === 'user'
               ? 'bg-blue-600 text-white'
               : 'bg-gray-700 text-white'
           "
         >
-          {{ msg.content }}
+          <span v-if="msg.role === 'user'">{{ msg.content }}</span>
+          <span v-else v-html="formatMessage(msg.content)"></span>
         </div>
       </div>
       <div

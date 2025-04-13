@@ -7,7 +7,7 @@ import { OpenAI } from 'openai';
 import { ChatCompletionMessageParam } from 'openai/resources';
 import { db } from './config/database.js';
 import { chats, users } from './db/schema.js';
-import { eq } from 'drizzle-orm';
+import { eq, desc } from 'drizzle-orm';
 
 // Load environment variables
 dotenv.config();
@@ -138,10 +138,12 @@ app.post('/chat', async (req: Request, res: Response): Promise<any> => {
       content: message
     });
 
+    console.log('Conversation:', conversation);
+
     // send message to OpenAI
     const response = await openai.chat.completions.create({
       model: 'gpt-4o',
-      messages: conversation as ChatCompletionMessageParam[]
+      messages: conversation
     });
     const aiMessage: string =
       response.choices[0].message?.content ?? 'No response from chatGPT';

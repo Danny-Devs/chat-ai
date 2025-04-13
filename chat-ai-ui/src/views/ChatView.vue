@@ -15,6 +15,8 @@ const chatStore = useChatStore();
 const userStore = useUserStore();
 const router = useRouter();
 
+const chatInputRef = ref<InstanceType<typeof ChatInput> | null>(null);
+
 // ensure user is logged in
 if (!userStore.userId) {
   router.push('/');
@@ -43,8 +45,14 @@ onMounted(() => {
 
 watch(
   () => chatStore.isLoading,
-  () => {
+  (isLoading) => {
     scrollToBottom();
+
+    // When AI has finished responding (loading state ends)
+    if (!isLoading) {
+      // Focus the textarea for the next message
+      chatInputRef.value?.focus();
+    }
   }
 );
 </script>
@@ -92,10 +100,9 @@ watch(
 
     <!-- Message input area -->
     <ChatInput
+      ref="chatInputRef"
       @submit="handleMessageSubmit"
       :isDisabled="chatStore.isLoading"
     />
   </div>
 </template>
-
-

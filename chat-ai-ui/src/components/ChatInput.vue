@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, nextTick } from 'vue';
 
 // Define props for state
 const props = defineProps<{
@@ -12,6 +12,7 @@ const emit = defineEmits<{
 }>();
 
 const message = ref('');
+const textareaRef = ref<HTMLTextAreaElement | null>(null);
 
 const handleSubmit = () => {
   if (message.value.trim() === '' || props.isDisabled) return;
@@ -19,6 +20,18 @@ const handleSubmit = () => {
   emit('submit', message.value);
   message.value = '';
 };
+
+// Method to focus the textarea
+const focus = () => {
+  nextTick(() => {
+    textareaRef.value?.focus();
+  });
+};
+
+// Expose the focus method to parent components
+defineExpose({
+  focus
+});
 </script>
 
 <template>
@@ -26,6 +39,7 @@ const handleSubmit = () => {
     <div class="mx-auto w-1/2">
       <form @submit.prevent="handleSubmit" class="flex gap-2">
         <textarea
+          ref="textareaRef"
           v-model="message"
           placeholder="Type your message..."
           class="flex-1 px-4 py-3 bg-gray-800 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 h-16 resize-none custom-scrollbar"

@@ -74,6 +74,7 @@ const createUser = async () => {
         class="w-1/2 p-3 bg-blue-600 rounded-lg mx-auto block hover:bg-blue-500"
         :disabled="loading"
         @click="createUser"
+        @keydown.enter="createUser"
       >
         {{ loading ? 'Logging in...' : 'Start Chat' }}
       </button>

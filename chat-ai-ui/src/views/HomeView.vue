@@ -68,13 +68,13 @@ const createUser = async () => {
         class="w-full px-5 py-2 mb-7 bg-gray-700 text-white rounded-lg focus:outline-none placeholder:italic placeholder:text-gray-300 text-center"
         placeholder="Enter your email"
         v-model="email"
+        @keydown.enter="createUser"
       />
 
       <button
         class="w-1/2 p-3 bg-blue-600 rounded-lg mx-auto block hover:bg-blue-500"
         :disabled="loading"
         @click="createUser"
-        @keydown.enter="createUser"
       >
         {{ loading ? 'Logging in...' : 'Start Chat' }}
       </button>

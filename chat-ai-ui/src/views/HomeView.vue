@@ -49,7 +49,7 @@ const createUser = async () => {
 <template>
   <div class="h-screen flex items-center justify-center bg-gray-900 text-white">
     <div
-      class="p-12 pb-16 bg-gray-800 rounded-lg shadow-lg w-full max-w-lg relative"
+      class="p-12 pb-16 bg-gray-800 rounded-lg shadow-lg w-full mx-5 md:mx-0 max-w-lg relative"
     >
       <img :src="robotImage" alt="Robot" class="mx-auto w-24 h-24 mb-2" />
       <h1 class="text-2xl font-semibold mb-10 text-center">

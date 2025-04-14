@@ -29,7 +29,30 @@ const formatMessage = (text: string) => {
   // First handle code blocks (triple backticks)
   let formatted = text.replace(
     /```(\w+)?\n([\s\S]*?)```/g,
-    '<pre class="bg-gray-950 p-3 rounded my-2 overflow-x-auto"><code class="text-gray-300">$2</code></pre>'
+    (match, lang, codeContent) => {
+      // Split code into lines
+      const lines = codeContent.split('\n');
+
+      let lineCounter = 1; // Separate counter for non-empty lines
+
+      // Add line numbers to each line, but skip numbering blank lines
+      const numberedCode = lines
+        .map((line: string) => {
+          if (line.trim() === '') {
+            // For empty lines, don't add a line number but keep the line
+            return `<div class="code-line empty-line"><span class="line-number"></span><span class="line-content"></span></div>`;
+          }
+
+          // For non-empty lines, add a line number with more spacing
+          const numberedLine = `<div class="code-line"><span class="line-number">${lineCounter}</span><span class="line-content">${line}</span></div>`;
+          lineCounter++; // Only increment for non-empty lines
+          return numberedLine;
+        })
+        .join('');
+
+      // Return the code block with line numbers
+      return `<pre class="bg-gray-950 p-3 rounded my-2 whitespace-pre-wrap break-words"><code class="text-gray-300 numbered-code">${numberedCode}</code></pre>`;
+    }
   );
 
   // Then handle the rest of the formatting
@@ -86,7 +109,7 @@ watch(
     <!-- Chat messages -->
     <div
       id="chat-container"
-      class="flex-1 overflow-y-auto p-6 space-y-4 mx-auto w-2/3 custom-scrollbar"
+      class="flex-1 overflow-y-auto p-6 space-y-4 mx-auto w-full lg:w-2/3 custom-scrollbar"
     >
       <div
         v-for="(msg, index) in chatStore.messages"
@@ -130,3 +153,34 @@ watch(
     />
   </div>
 </template>
+
+<style>
+/* Code with line numbers */
+.numbered-code {
+  display: block;
+}
+
+.code-line {
+  display: grid;
+  grid-template-columns: 2rem auto;
+  width: 100%;
+}
+
+.empty-line {
+  height: 1.5em;
+}
+
+.line-number {
+  color: #6b7280;
+  text-align: right;
+  padding-right: 0.5rem;
+  user-select: none;
+  opacity: 0.7;
+}
+
+.line-content {
+  padding-left: 0.5rem;
+  min-width: 0;
+  overflow-wrap: break-word;
+}
+</style>

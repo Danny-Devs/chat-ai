@@ -36,7 +36,7 @@ defineExpose({
 
 <template>
   <div class="px-4 py-6 w-full">
-    <div class="mx-auto w-2/3">
+    <div class="mx-auto md:w-5/6 lg:w-2/3">
       <form @submit.prevent="handleSubmit" class="flex gap-2">
         <textarea
           ref="textareaRef"

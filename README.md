@@ -1,6 +1,6 @@
 # OpenAI Chat App
 
-![OpenAI Chat App](https://chat-ai-chat-ai-ui.vercel.app)
+[OpenAI Chat App](https://chat-ai-chat-ai-ui.vercel.app)
 
 [![Vue.js](https://img.shields.io/badge/Vue.js-4FC08D?style=flat&logo=vue.js&logoColor=white)](https://vuejs.org/)
 [![OpenAI](https://img.shields.io/badge/OpenAI-412991?style=flat&logo=openai&logoColor=white)](https://openai.com/)
